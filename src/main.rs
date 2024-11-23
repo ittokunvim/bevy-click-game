@@ -4,6 +4,7 @@ const GAMETITLE: &str = "クリックゲーム";
 const WINDOW_SIZE: Vec2 = Vec2::new(640.0, 480.0);
 const BACKGROUND_COLOR: Color = Color::srgb(0.75, 0.75, 0.75);
 const PATH_FONT: &str = "fonts/misaki_gothic.ttf";
+const PATH_SOUND_BGM: &str = "sounds/bgm.ogg";
 
 const GAMETITLE_FONT_SIZE: f32 = 40.0;
 const GAMETITLE_COLOR: Color = Color::srgb(0.1, 0.1, 0.1);
@@ -53,4 +54,14 @@ fn setup(
         }),
     )
     .insert(Name::new("game_title"));
+
+    // bgm
+    let bgm_sound = asset_server.load(PATH_SOUND_BGM);
+
+    commands.spawn(
+        AudioBundle {
+            source: bgm_sound,
+            settings: PlaybackSettings::LOOP.with_spatial(true),
+        }
+    );
  }
