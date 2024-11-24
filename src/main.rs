@@ -8,6 +8,10 @@ const PATH_SOUND_BGM: &str = "sounds/bgm.ogg";
 
 const GAMETITLE_FONT_SIZE: f32 = 40.0;
 const GAMETITLE_COLOR: Color = Color::srgb(0.1, 0.1, 0.1);
+const CLICKSTART_TEXT: &str = "クリックしてスタート";
+const CLICKSTART_FONT_SIZE: f32 = 20.0;
+const CLICKSTART_COLOR: Color = Color::srgb(0.2, 0.2, 0.2);
+const CLICKSTART_PADDING: Val = Val::Px(16.0);
 
 fn main() {
     App::new()
@@ -53,8 +57,25 @@ fn setup(
             ..default()
         }),
     )
-    .insert(Name::new("game_title"));
-
+    .insert(Name::new("gametitle"));
+    // Click Start
+    commands.spawn(
+        TextBundle::from_section(
+            CLICKSTART_TEXT,
+            TextStyle {
+                font: asset_server.load(PATH_FONT),
+                font_size: CLICKSTART_FONT_SIZE,
+                color: CLICKSTART_COLOR,
+            }
+        )
+        .with_style(Style {
+            position_type: PositionType::Absolute,
+            right: CLICKSTART_PADDING,
+            bottom: CLICKSTART_PADDING,
+            ..default()
+        }),
+    )
+    .insert(Name::new("clickstart"));
     // bgm
     let bgm_sound = asset_server.load(PATH_SOUND_BGM);
 
