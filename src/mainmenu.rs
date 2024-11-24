@@ -8,6 +8,7 @@ use crate::{
     WINDOW_SIZE,
     PATH_FONT,
     PATH_IMAGE_MAINMENU,
+    AppState,
 };
 
 const GAMETITLE_FONT_SIZE: f32 = 32.0;
@@ -19,6 +20,9 @@ const TEXT_PADDING: f32 = 50.0;
 const BOARD_SIZE: Vec2 = Vec2::new(280.0, 210.0);
 const BOARD_COLOR: Color = Color::srgb(0.2, 0.2, 0.2);
 
+#[derive(Default, Component, Debug)]
+struct Mainmenu;
+
 fn setup(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
@@ -26,7 +30,7 @@ fn setup(
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
     // Game title
-    commands.spawn(
+    commands.spawn((
         TextBundle::from_section(
             GAMETITLE,
             TextStyle {
@@ -41,10 +45,11 @@ fn setup(
             top: Val::Px(WINDOW_SIZE.y / 2.0 - GAMETITLE_FONT_SIZE / 2.0 - TEXT_PADDING),
             ..default()
         }),
-    )
+        Mainmenu,
+    ))
     .insert(Name::new("gametitle"));
     // Click Start
-    commands.spawn(
+    commands.spawn((
         TextBundle::from_section(
             CLICKSTART_TEXT,
             TextStyle {
@@ -59,30 +64,53 @@ fn setup(
             top: Val::Px(WINDOW_SIZE.y / 2.0 - GAMETITLE_FONT_SIZE / 2.0 + TEXT_PADDING),
             ..default()
         }),
-    )
+        Mainmenu,
+    ))
     .insert(Name::new("clickstart"));
     // Mainmenu Board
-    commands.spawn(MaterialMesh2dBundle {
-        mesh: Mesh2dHandle(meshes.add(Rectangle::new(BOARD_SIZE.x, BOARD_SIZE.y))),
-        material: materials.add(BOARD_COLOR),
-        ..default()
-    })
+    commands.spawn((
+        MaterialMesh2dBundle {
+            mesh: Mesh2dHandle(meshes.add(Rectangle::new(BOARD_SIZE.x, BOARD_SIZE.y))),
+            material: materials.add(BOARD_COLOR),
+            ..default()
+        },
+        Mainmenu,
+    ))
     .insert(Name::new("board"));
     // Background image
-    commands.spawn(
+    commands.spawn((
         SpriteBundle {
             texture: asset_server.load(PATH_IMAGE_MAINMENU),
             transform: Transform::from_xyz(0.0, 0.0, -10.0),
             ..default()
         },
-    )
+        Mainmenu,
+    ))
     .insert(Name::new("image"));
+}
+
+fn update(
+    mouse_event: Res<ButtonInput<MouseButton>>,
+    mainmenu_query: Query<Entity, With<Mainmenu>>,
+    mut commands: Commands,
+    mut app_state: ResMut<NextState<AppState>>,
+) {
+    if mouse_event.just_pressed(MouseButton::Left) {
+        // despawn mainmenu entities
+        for mainmenu_entity in mainmenu_query.iter() {
+            commands.entity(mainmenu_entity).despawn();
+        }
+        // change app state
+        app_state.set(AppState::Ingame);
+    }
 }
 
 pub struct MainmenuPlugin;
 
 impl Plugin for MainmenuPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Startup, setup);
+        app
+            .add_systems(OnEnter(AppState::Mainmenu), setup)
+            .add_systems(Update, update.run_if(in_state(AppState::Mainmenu)));
     }
 }

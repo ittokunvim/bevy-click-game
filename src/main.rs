@@ -1,6 +1,7 @@
 use bevy::prelude::*;
 
 mod mainmenu;
+mod ingame;
 
 const GAMETITLE: &str = "クリックゲーム";
 const WINDOW_SIZE: Vec2 = Vec2::new(640.0, 480.0);
@@ -9,6 +10,13 @@ const BACKGROUND_COLOR: Color = Color::srgb(0.75, 0.75, 0.75);
 const PATH_FONT: &str = "fonts/misaki_gothic.ttf";
 const PATH_IMAGE_MAINMENU: &str = "images/mainmenu.png";
 const PATH_SOUND_BGM: &str = "sounds/bgm.ogg";
+
+#[derive(States, Default, Debug, Clone, PartialEq, Eq, Hash)]
+pub enum AppState {
+    #[default]
+    Mainmenu,
+    Ingame,
+}
 
 fn main() {
     App::new()
@@ -22,10 +30,12 @@ fn main() {
                 ..default()
             })
         )
+        .init_state::<AppState>()
         .insert_resource(ClearColor(BACKGROUND_COLOR))
         .insert_resource(Time::<Fixed>::from_seconds(1.0 / 60.0))
         .add_systems(Startup, setup)
         .add_plugins(mainmenu::MainmenuPlugin)
+        .add_plugins(ingame::IngamePlugin)
         .run();
 }
 
