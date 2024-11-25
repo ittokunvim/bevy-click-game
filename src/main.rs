@@ -6,7 +6,7 @@ mod ingame;
 
 const GAMETITLE: &str = "クリックゲーム";
 const WINDOW_SIZE: Vec2 = Vec2::new(640.0, 480.0);
-const BACKGROUND_COLOR: Color = Color::srgb(0.75, 0.75, 0.75);
+const BACKGROUND_COLOR: Color = Color::srgb(0.1, 0.1, 0.1);
 
 const PATH_FONT: &str = "fonts/misaki_gothic.ttf";
 const PATH_IMAGE_MAINMENU: &str = "images/mainmenu.png";
