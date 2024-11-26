@@ -13,10 +13,14 @@ const PATH_IMAGE_MAINMENU: &str = "images/mainmenu.png";
 const PATH_SOUND_BGM: &str = "sounds/bgm.ogg";
 
 #[derive(States, Default, Debug, Clone, PartialEq, Eq, Hash)]
-pub enum AppState {
+enum AppState {
     #[default]
     Mainmenu,
     Ingame,
+
+#[derive(Default)]
+struct Config {
+    startup: bool,
 }
 
 fn main() {

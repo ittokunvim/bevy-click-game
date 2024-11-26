@@ -8,6 +8,7 @@ use rand::distributions::{Distribution, Uniform};
 use crate::{
     WINDOW_SIZE,
     AppState,
+    Config,
 };
 
 #[derive(Default, Component, Debug)]
@@ -24,7 +25,11 @@ fn setup(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
+    config: &mut Config,
 ) {
+    if config.startup { return };
+    config.startup = true;
+
     // Balls
     let mut rng = rand::thread_rng();
     let die_width = Uniform::from(-WINDOW_SIZE.x / 2.0 + BALL_SIZE.x..WINDOW_SIZE.x / 2.0 - BALL_SIZE.x);
@@ -91,8 +96,21 @@ pub struct IngamePlugin;
 
 impl Plugin for IngamePlugin {
     fn build(&self, app: &mut App) {
+        let mut config = Config {
+            startup: false,
+        };
+
         app
-            .add_systems(OnEnter(AppState::Ingame), setup)
+            .add_systems(
+                OnEnter(AppState::Ingame),
+                move |
+                commands: Commands,
+                meshes: ResMut<Assets<Mesh>>,
+                materials: ResMut<Assets<ColorMaterial>>
+                | {
+                    setup(commands, meshes, materials, &mut config);
+                }
+            )
             .add_systems(Update, apply_velocity.run_if(in_state(AppState::Ingame)))
             .add_systems(Update, check_for_collisions.run_if(in_state(AppState::Ingame)));
     }
