@@ -29,7 +29,7 @@ fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
-    // Game title
+    println!("mainmenu: setup gametitle");
     commands.spawn((
         TextBundle::from_section(
             GAMETITLE,
@@ -48,7 +48,7 @@ fn setup(
         Mainmenu,
     ))
     .insert(Name::new("gametitle"));
-    // Click Start
+    println!("mainmenu: setup clickstart");
     commands.spawn((
         TextBundle::from_section(
             CLICKSTART_TEXT,
@@ -67,7 +67,7 @@ fn setup(
         Mainmenu,
     ))
     .insert(Name::new("clickstart"));
-    // Mainmenu Board
+    println!("mainmenu: setup mainmenud");
     commands.spawn((
         MaterialMesh2dBundle {
             mesh: Mesh2dHandle(meshes.add(Rectangle::new(BOARD_SIZE.x, BOARD_SIZE.y))),
@@ -77,7 +77,7 @@ fn setup(
         Mainmenu,
     ))
     .insert(Name::new("board"));
-    // Background image
+    println!("mainmenu: setup image");
     commands.spawn((
         SpriteBundle {
             texture: asset_server.load(PATH_IMAGE_MAINMENU),
@@ -96,11 +96,12 @@ fn update(
     mut app_state: ResMut<NextState<AppState>>,
 ) {
     if mouse_event.just_pressed(MouseButton::Left) {
-        // despawn mainmenu entities
+        println!("mainmenu: mouse clicked");
+        println!("mainmenu: despawned entities");
         for mainmenu_entity in mainmenu_query.iter() {
             commands.entity(mainmenu_entity).despawn();
         }
-        // change app state
+        println!("mainmenu: moved mainmenu -> ingame");
         app_state.set(AppState::Ingame);
     }
 }

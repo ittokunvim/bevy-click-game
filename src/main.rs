@@ -55,9 +55,9 @@ fn setup(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
 ) {
-    // camera
+    println!("main: setup camera");
     commands.spawn(Camera2dBundle::default());
-    // bgm
+    println!("main: setup bgm");
     let bgm_sound = asset_server.load(PATH_SOUND_BGM);
 
     commands.spawn(

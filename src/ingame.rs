@@ -30,7 +30,7 @@ fn setup(
     if config.startup { return };
     config.startup = true;
 
-    // Balls
+    println!("ingame: setup balls");
     let mut rng = rand::thread_rng();
     let die_width = Uniform::from(-WINDOW_SIZE.x / 2.0 + BALL_SIZE.x..WINDOW_SIZE.x / 2.0 - BALL_SIZE.x);
     let die_height = Uniform::from(-WINDOW_SIZE.y / 2.0 + BALL_SIZE.y..WINDOW_SIZE.y / 2.0 - BALL_SIZE.y);
