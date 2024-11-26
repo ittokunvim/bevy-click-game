@@ -1,12 +1,14 @@
 use bevy::{
     prelude::*,
     sprite::MaterialMesh2dBundle,
+    window::PrimaryWindow,
 };
 
 use rand::distributions::{Distribution, Uniform};
 
 use crate::{
     WINDOW_SIZE,
+    CURSOR_RANGE,
     AppState,
     Config,
 };
@@ -92,6 +94,33 @@ fn check_for_collisions(mut query: Query<(&mut Velocity, &Transform), With<Ball>
     }
 }
 
+fn mouse_click(
+    mut commands: Commands,
+    window_query: Query<&Window, With<PrimaryWindow>>,
+    mouse_event: Res<ButtonInput<MouseButton>>,
+    balls_query: Query<(Entity, &Transform), With<Ball>>,
+) {
+    if !mouse_event.just_pressed(MouseButton::Left) { return }
+    println!("ingame: mouse clicked");
+
+    let window = window_query.single();
+    let mut cursor_pos = window.cursor_position().unwrap();
+    cursor_pos = Vec2::new(
+        cursor_pos.x - window.width() / 2.0, 
+        -cursor_pos.y + window.height() / 2.0,
+    );
+
+    for (ball_entity, ball_transform) in balls_query.iter() {
+        let ball_pos = ball_transform.translation.truncate();
+        let distance = cursor_pos.distance(ball_pos);
+
+        if distance < BALL_SIZE.x - CURSOR_RANGE {
+            println!("ingame: despawned ball entity");
+            commands.entity(ball_entity).despawn();
+        }
+    }
+}
+
 pub struct IngamePlugin;
 
 impl Plugin for IngamePlugin {
@@ -112,6 +141,7 @@ impl Plugin for IngamePlugin {
                 }
             )
             .add_systems(Update, apply_velocity.run_if(in_state(AppState::Ingame)))
-            .add_systems(Update, check_for_collisions.run_if(in_state(AppState::Ingame)));
+            .add_systems(Update, check_for_collisions.run_if(in_state(AppState::Ingame)))
+            .add_systems(Update, mouse_click.run_if(in_state(AppState::Ingame)));
     }
 }
