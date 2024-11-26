@@ -10,6 +10,9 @@ use crate::{
     AppState,
 };
 
+#[derive(Default, Component, Debug)]
+struct Ball;
+
 #[derive(Component, Deref, DerefMut)]
 struct Velocity(Vec2);
 
@@ -46,6 +49,7 @@ fn setup(
                     .with_scale(BALL_SIZE),
                 ..default()
             },
+            Ball,
             Velocity(Vec2::new(ball_velocity_x, ball_velocity_y) * BALL_SPEED),
         ))
         .insert(Name::new("ball"));
@@ -62,12 +66,34 @@ fn apply_velocity(
     }
 }
 
+fn check_for_collisions(mut query: Query<(&mut Velocity, &Transform), With<Ball>>) {
+    for (mut velocity, transform) in query.iter_mut() {
+        let size = transform.scale.truncate();
+        let left_window_collision =
+            WINDOW_SIZE.x / 2.0 < transform.translation.x + size.x / 2.0;
+        let right_window_collision =
+            -WINDOW_SIZE.x / 2.0 > transform.translation.x - size.x / 2.0;
+        let top_window_collision =
+            WINDOW_SIZE.y / 2.0 < transform.translation.y + size.y / 2.0;
+        let bottom_window_collision =
+            -WINDOW_SIZE.y / 2.0 > transform.translation.y - size.y / 2.0;
+
+        if left_window_collision || right_window_collision {
+            velocity.x = -velocity.x;
+        }
+        if top_window_collision || bottom_window_collision {
+            velocity.y = -velocity.y;
+        }
+    }
+}
+
 pub struct IngamePlugin;
 
 impl Plugin for IngamePlugin {
     fn build(&self, app: &mut App) {
         app
             .add_systems(OnEnter(AppState::Ingame), setup)
-            .add_systems(Update, apply_velocity.run_if(in_state(AppState::Ingame)));
+            .add_systems(Update, apply_velocity.run_if(in_state(AppState::Ingame)))
+            .add_systems(Update, check_for_collisions.run_if(in_state(AppState::Ingame)));
     }
 }
