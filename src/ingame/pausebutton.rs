@@ -15,7 +15,7 @@ const IMAGE_SIZE: u32 = 64;
 const SIZE: f32 = 32.0;
 
 #[derive(Default, Component, Debug)]
-struct PauseButton {
+struct Pausebutton {
     first: usize,
     last: usize,
 }
@@ -28,12 +28,13 @@ fn setup(
 ) {
     if !config.setup_ingame { return };
 
+    println!("pausebutton: setup");
     let layout = TextureAtlasLayout::from_grid(UVec2::splat(IMAGE_SIZE), 2, 1, None, None);
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
-    let animation_indices = PauseButton { first: 0, last: 1 };
+    let animation_indices = Pausebutton { first: 0, last: 1 };
     let pos = Vec3::new(
         WINDOW_SIZE.x / 2.0 - SIZE,
-        WINDOW_SIZE.y / 2.0 - SIZE,
+        -WINDOW_SIZE.y / 2.0 + SIZE,
         10.0
     );
 
@@ -59,7 +60,7 @@ fn setup(
 fn update(
     mouse_event: Res<ButtonInput<MouseButton>>,
     window_query: Query<&Window, With<PrimaryWindow>>,
-    mut query: Query<(&Transform, &PauseButton, &mut TextureAtlas), With<PauseButton>>,
+    mut query: Query<(&Transform, &Pausebutton, &mut TextureAtlas), With<Pausebutton>>,
     mut config: ResMut<Config>,
     mut next_state: ResMut<NextState<AppState>>,
 ) {
@@ -78,26 +79,25 @@ fn update(
     let distance = cursor_pos.distance(pausebutton_pos);
 
     if distance < SIZE - CURSOR_RANGE {
-        println!("pause: clicked");
         if atlas.index == prop.first {
-            println!("pause: toggled");
+            println!("pausebutton: toggled");
             atlas.index = prop.last;
-            println!("pause: moved state to Pause from Ingame");
+            println!("pausebutton: moved state to Pause from Ingame");
             next_state.set(AppState::Pause);
         } else {
-            println!("pause: change config.setup_ingame to false");
+            println!("pausebutton: change config.setup_ingame to false");
             config.setup_ingame = false;
-            println!("pause: toggled");
+            println!("pausebutton: toggled");
             atlas.index = prop.first;
-            println!("pause: moved state to Ingame from Pause");
+            println!("pausebutton: moved state to Ingame from Pause");
             next_state.set(AppState::Ingame);
         }
     }
 }
 
-pub struct PauseButtonPlugin;
+pub struct PausebuttonPlugin;
 
-impl Plugin for PauseButtonPlugin {
+impl Plugin for PausebuttonPlugin {
     fn build(&self, app: &mut App) {
         app
             .add_systems(OnEnter(AppState::Ingame), setup)
