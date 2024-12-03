@@ -30,6 +30,7 @@ impl Plugin for TimerPlugin {
         app
             .add_systems(Update, update.run_if(in_state(AppState::Ingame)))
             .add_systems(OnExit(AppState::Gameover), reset)
+            .add_systems(OnExit(AppState::Gameclear), reset)
         ;
     }
 }

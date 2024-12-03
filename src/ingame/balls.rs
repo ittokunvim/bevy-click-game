@@ -110,6 +110,7 @@ fn check_for_collisions(
 fn mouse_click(
     mut commands: Commands,
     mut ball_count: ResMut<BallCount>,
+    mut next_state: ResMut<NextState<AppState>>,
     window_query: Query<&Window, With<PrimaryWindow>>,
     mouse_event: Res<ButtonInput<MouseButton>>,
     balls_query: Query<(Entity, &Transform), With<Ball>>,
@@ -132,6 +133,10 @@ fn mouse_click(
             **ball_count -= 1;
             println!("balls: despawn");
             commands.entity(ball_entity).despawn();
+            if **ball_count <= 0 {
+                println!("balls: moved state to Gameclear from Ingame");
+                next_state.set(AppState::Gameclear);
+            }
         }
     }
 }
@@ -162,6 +167,8 @@ impl Plugin for BallsPlugin {
             .add_systems(Update, mouse_click.run_if(in_state(AppState::Ingame)))
             .add_systems(OnEnter(AppState::Gameover), despawn)
             .add_systems(OnExit(AppState::Gameover), reset_ball_count)
+            .add_systems(OnEnter(AppState::Gameclear), despawn)
+            .add_systems(OnExit(AppState::Gameclear), reset_ball_count)
         ;
     }
 }

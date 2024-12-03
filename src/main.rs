@@ -3,6 +3,7 @@ use bevy::prelude::*;
 mod mainmenu;
 mod ingame;
 mod gameover;
+mod gameclear;
 
 const GAMETITLE: &str = "クリックゲーム";
 const WINDOW_SIZE: Vec2 = Vec2::new(640.0, 480.0);
@@ -22,6 +23,7 @@ enum AppState {
     Ingame,
     Pause,
     Gameover,
+    Gameclear,
 }
 
 #[derive(Resource, Deref, DerefMut, Debug)]
@@ -59,6 +61,7 @@ fn main() {
         .add_plugins(mainmenu::MainmenuPlugin)
         .add_plugins(ingame::IngamePlugin)
         .add_plugins(gameover::GameoverPlugin)
+        .add_plugins(gameclear::GameclearPlugin)
         .run();
 }
 

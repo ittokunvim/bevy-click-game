@@ -95,6 +95,7 @@ impl Plugin for ScoreboardPlugin {
             .add_systems(OnEnter(AppState::Ingame), setup)
             .add_systems(Update, update.run_if(in_state(AppState::Ingame)))
             .add_systems(OnEnter(AppState::Gameover), despawn)
+            .add_systems(OnEnter(AppState::Gameclear), despawn)
         ;
     }
 }

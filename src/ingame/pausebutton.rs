@@ -114,6 +114,7 @@ impl Plugin for PausebuttonPlugin {
             .add_systems(Update, update.run_if(in_state(AppState::Ingame)))
             .add_systems(Update, update.run_if(in_state(AppState::Pause)))
             .add_systems(OnEnter(AppState::Gameover), despawn)
+            .add_systems(OnEnter(AppState::Gameclear), despawn)
         ;
     }
 }
