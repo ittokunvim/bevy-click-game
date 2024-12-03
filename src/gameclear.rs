@@ -50,7 +50,7 @@ fn setup(
     .insert(Name::new("gameclear"));
     // timer
     let top = WINDOW_SIZE.y / 2.0 - TEXT_FONT_SIZE / 2.0 - TEXT_PADDING * 0.5;
-    let cleartime = GAMETIME_LIMIT - timer.0.remaining_secs();
+    let cleartime = GAMETIME_LIMIT - (timer.0.remaining_secs() * 100.0).round() / 100.0;
 
     commands.spawn((
         TextBundle::from_section(
