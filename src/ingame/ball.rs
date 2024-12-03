@@ -11,6 +11,7 @@ use crate::{
     AppState,
     Config,
 };
+use crate::ingame::Ballcount;
 
 #[derive(Component)]
 struct Ball;
@@ -18,7 +19,6 @@ struct Ball;
 #[derive(Component, Deref, DerefMut)]
 struct Velocity(Vec2);
 
-const BALL_COUNT: usize = 30;
 const BALL_SIZE: Vec3 = Vec3::new(25.0, 25.0, 0.0);
 const BALL_SPEED: f32 = 400.0;
 
@@ -27,6 +27,7 @@ fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
     config: Res<Config>,
+    ballcount: Res<Ballcount>,
 ) {
     if !config.setup_ingame { return };
 
@@ -42,7 +43,7 @@ fn setup(
     let die_z = Uniform::from(0.0..100.0);
     let die_velocity = Uniform::from(-0.5..0.5);
 
-    for _ in 0..BALL_COUNT {
+    for _ in 0..**ballcount {
         let ball_color = Color::srgb(
             die_color.sample(&mut rng),
             die_color.sample(&mut rng),
@@ -108,6 +109,7 @@ fn mouse_click(
     window_query: Query<&Window, With<PrimaryWindow>>,
     mouse_event: Res<ButtonInput<MouseButton>>,
     balls_query: Query<(Entity, &Transform), With<Ball>>,
+    mut ballcount: ResMut<Ballcount>,
 ) {
     if !mouse_event.just_pressed(MouseButton::Left) { return }
 
@@ -123,6 +125,8 @@ fn mouse_click(
         let distance = cursor_pos.distance(ball_pos);
 
         if distance < BALL_SIZE.x - CURSOR_RANGE {
+            println!("ball: ballcount from {} to {}", **ballcount, **ballcount - 1);
+            **ballcount -= 1;
             println!("ball: despawned");
             commands.entity(ball_entity).despawn();
         }
