@@ -5,9 +5,13 @@ use crate::{
     AppState,
     Config,
 };
-use crate::ingame::Ballcount;
+use crate::ingame::{
+    Ballcount,
+    GameTimer,
+};
 
 const BALLCOUNT_TEXT: &str = "ボールのこり: ";
+const TIMER_TEXT: &str = " | タイム: ";
 const TEXT_SIZE: f32 = 20.0;
 const TEXT_COLOR: Color = Color::srgb(0.9, 0.9, 0.9);
 const TEXT_PADDING: Val = Val::Px(5.0);
@@ -19,7 +23,6 @@ fn setup(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     config: Res<Config>,
-    ballcount: Res<Ballcount>,
 ) {
     if !config.setup_ingame { return }
 
@@ -34,8 +37,22 @@ fn setup(
                     color: TEXT_COLOR,
                 },
             ),
+            TextSection::from_style(
+                TextStyle {
+                    font: asset_server.load(PATH_FONT),
+                    font_size: TEXT_SIZE,
+                    color: TEXT_COLOR,
+                },
+            ),
             TextSection::new(
-                ballcount.to_string(),
+                TIMER_TEXT, 
+                TextStyle {
+                    font: asset_server.load(PATH_FONT),
+                    font_size: TEXT_SIZE,
+                    color: TEXT_COLOR,
+                },
+            ),
+            TextSection::from_style(
                 TextStyle {
                     font: asset_server.load(PATH_FONT),
                     font_size: TEXT_SIZE,
@@ -56,10 +73,12 @@ fn setup(
 fn update(
     mut query: Query<&mut Text, With<ScoreboardUi>>,
     ballcount: Res<Ballcount>,
+    timer: Res<GameTimer>,
 ) {
     let mut text = query.single_mut();
-    // write ballcount
+    // write ballcount and timer
     text.sections[1].value = ballcount.to_string();
+    text.sections[3].value = timer.0.remaining_secs().round().to_string();
 }
 
 pub struct ScoreboardPlugin;

@@ -18,6 +18,7 @@ enum AppState {
     Mainmenu,
     Ingame,
     Pause,
+    Gameover,
 }
 
 #[derive(Resource, Deref, DerefMut, Debug)]
