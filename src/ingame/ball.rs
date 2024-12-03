@@ -133,6 +133,16 @@ fn mouse_click(
     }
 }
 
+fn despawn(
+    mut commands: Commands,
+    query: Query<Entity, With<Ball>>,
+) {
+    println!("ball: despawned all");
+    for entity in query.iter() {
+        commands.entity(entity).despawn();
+    }
+}
+
 pub struct BallPlugin;
 
 impl Plugin for BallPlugin {
@@ -141,6 +151,7 @@ impl Plugin for BallPlugin {
             .add_systems(OnEnter(AppState::Ingame), setup)
             .add_systems(Update, apply_velocity.run_if(in_state(AppState::Ingame)))
             .add_systems(Update, check_for_collisions.run_if(in_state(AppState::Ingame)))
-            .add_systems(Update, mouse_click.run_if(in_state(AppState::Ingame)));
+            .add_systems(Update, mouse_click.run_if(in_state(AppState::Ingame)))
+            .add_systems(OnEnter(AppState::Gameover), despawn);
     }
 }

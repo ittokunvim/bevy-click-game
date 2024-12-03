@@ -95,6 +95,16 @@ fn update(
     }
 }
 
+fn despawn(
+    mut commands: Commands,
+    query: Query<Entity, With<Pausebutton>>,
+) {
+    println!("pausebutton: despawn");
+    let entity = query.single();
+
+    commands.entity(entity).despawn();
+}
+
 pub struct PausebuttonPlugin;
 
 impl Plugin for PausebuttonPlugin {
@@ -102,6 +112,7 @@ impl Plugin for PausebuttonPlugin {
         app
             .add_systems(OnEnter(AppState::Ingame), setup)
             .add_systems(Update, update.run_if(in_state(AppState::Ingame)))
-            .add_systems(Update, update.run_if(in_state(AppState::Pause)));
+            .add_systems(Update, update.run_if(in_state(AppState::Pause)))
+            .add_systems(OnEnter(AppState::Gameover), despawn);
     }
 }

@@ -81,12 +81,23 @@ fn update(
     text.sections[3].value = timer.0.remaining_secs().round().to_string();
 }
 
+fn despawn(
+    mut commands: Commands,
+    query: Query<Entity, With<ScoreboardUi>>,
+) {
+    println!("scoreboard: despawn");
+    let entity = query.single();
+
+    commands.entity(entity).despawn();
+}
+
 pub struct ScoreboardPlugin;
 
 impl Plugin for ScoreboardPlugin {
     fn build(&self, app: &mut App) {
         app
             .add_systems(OnEnter(AppState::Ingame), setup)
-            .add_systems(Update, update.run_if(in_state(AppState::Ingame)));
+            .add_systems(Update, update.run_if(in_state(AppState::Ingame)))
+            .add_systems(OnEnter(AppState::Gameover), despawn);
     }
 }

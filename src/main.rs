@@ -2,6 +2,7 @@ use bevy::prelude::*;
 
 mod mainmenu;
 mod ingame;
+mod gameover;
 
 const GAMETITLE: &str = "クリックゲーム";
 const WINDOW_SIZE: Vec2 = Vec2::new(640.0, 480.0);
@@ -45,6 +46,7 @@ fn main() {
         .add_systems(Startup, setup)
         .add_plugins(mainmenu::MainmenuPlugin)
         .add_plugins(ingame::IngamePlugin)
+        .add_plugins(gameover::GameoverPlugin)
         .run();
 }
 
