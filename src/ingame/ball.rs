@@ -8,10 +8,11 @@ use rand::distributions::{Distribution, Uniform};
 use crate::{
     WINDOW_SIZE,
     CURSOR_RANGE,
+    BALL_COUNT,
     AppState,
     Config,
+    Ballcount,
 };
-use crate::ingame::Ballcount;
 
 #[derive(Component)]
 struct Ball;
@@ -143,6 +144,11 @@ fn despawn(
     }
 }
 
+fn reset_ballcount(mut ballcount: ResMut<Ballcount>) {
+    println!("ball: reset ballcount");
+    **ballcount = BALL_COUNT;
+}
+
 pub struct BallPlugin;
 
 impl Plugin for BallPlugin {
@@ -152,6 +158,8 @@ impl Plugin for BallPlugin {
             .add_systems(Update, apply_velocity.run_if(in_state(AppState::Ingame)))
             .add_systems(Update, check_for_collisions.run_if(in_state(AppState::Ingame)))
             .add_systems(Update, mouse_click.run_if(in_state(AppState::Ingame)))
-            .add_systems(OnEnter(AppState::Gameover), despawn);
+            .add_systems(OnEnter(AppState::Gameover), despawn)
+            .add_systems(OnExit(AppState::Gameover), reset_ballcount)
+        ;
     }
 }

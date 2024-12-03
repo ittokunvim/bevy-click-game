@@ -85,8 +85,10 @@ fn update(
             println!("pausebutton: moved state to Pause from Ingame");
             next_state.set(AppState::Pause);
         } else {
-            println!("pausebutton: change config.setup_ingame to false");
-            config.setup_ingame = false;
+            if config.setup_ingame {
+                println!("pausebutton: change config.setup_ingame to false");
+                config.setup_ingame = false;
+            }
             println!("pausebutton: toggled");
             atlas.index = prop.first;
             println!("pausebutton: moved state to Ingame from Pause");

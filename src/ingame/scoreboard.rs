@@ -4,11 +4,9 @@ use crate::{
     PATH_FONT,
     AppState,
     Config,
-};
-use crate::ingame::{
     Ballcount,
-    GameTimer,
 };
+use crate::ingame::GameTimer;
 
 const BALLCOUNT_TEXT: &str = "ボールのこり: ";
 const TIMER_TEXT: &str = " | タイム: ";
