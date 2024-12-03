@@ -20,7 +20,7 @@ struct Ball;
 #[derive(Component, Deref, DerefMut)]
 struct Velocity(Vec2);
 
-const BALL_SIZE: Vec3 = Vec3::new(25.0, 25.0, 0.0);
+const BALL_SIZE: Vec3 = Vec3::new(30.0, 30.0, 0.0);
 const BALL_SPEED: f32 = 400.0;
 
 fn setup(
