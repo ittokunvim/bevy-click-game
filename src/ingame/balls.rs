@@ -34,7 +34,6 @@ fn setup(
 
     println!("balls: setup");
     let mut rng = rand::thread_rng();
-    let die_color = Uniform::from(0.0..1.0);
     let die_width = Uniform::from(
         -WINDOW_SIZE.x / 2.0 + BALL_SIZE.x..WINDOW_SIZE.x / 2.0 - BALL_SIZE.x
     );
@@ -45,11 +44,6 @@ fn setup(
     let die_velocity = Uniform::from(-0.5..0.5);
 
     for _ in 0..**ball_count {
-        let ball_color = Color::srgb(
-            die_color.sample(&mut rng),
-            die_color.sample(&mut rng),
-            die_color.sample(&mut rng)
-        );
         let ball_pos = Vec3::new(
             die_width.sample(&mut rng),
             die_height.sample(&mut rng),
@@ -63,7 +57,7 @@ fn setup(
         commands.spawn((
             MaterialMesh2dBundle {
                 mesh: meshes.add(Circle::default()).into(),
-                material: materials.add(ColorMaterial::from(ball_color)),
+                material: materials.add(ColorMaterial::from(random_color())),
                 transform: Transform::from_translation(ball_pos).with_scale(BALL_SIZE),
                 ..Default::default()
             },
@@ -85,9 +79,10 @@ fn apply_velocity(
 }
 
 fn check_for_collisions(
-    mut query: Query<(&mut Velocity, &Transform), With<Ball>>,
+    mut query: Query<(&Handle<ColorMaterial>, &mut Velocity, &Transform), With<Ball>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
-    for (mut velocity, transform) in query.iter_mut() {
+    for (handle, mut velocity, transform) in query.iter_mut() {
         let size = transform.scale.truncate();
         let left_window_collision =
             WINDOW_SIZE.x / 2.0 < transform.translation.x + size.x / 2.0;
@@ -98,11 +93,20 @@ fn check_for_collisions(
         let bottom_window_collision =
             -WINDOW_SIZE.y / 2.0 > transform.translation.y - size.y / 2.0;
 
-        if left_window_collision || right_window_collision {
-            velocity.x = -velocity.x;
-        }
-        if top_window_collision || bottom_window_collision {
-            velocity.y = -velocity.y;
+        if left_window_collision
+        || right_window_collision
+        || top_window_collision
+        || bottom_window_collision {
+            let color_material: &mut ColorMaterial = materials.get_mut(handle.id()).unwrap();
+
+            if left_window_collision || right_window_collision {
+                velocity.x = -velocity.x;
+                color_material.color = random_color();
+            }
+            if top_window_collision || bottom_window_collision {
+                velocity.y = -velocity.y;
+                color_material.color = random_color();
+            }
         }
     }
 }
@@ -171,4 +175,15 @@ impl Plugin for BallsPlugin {
             .add_systems(OnExit(AppState::Gameclear), reset_ball_count)
         ;
     }
+}
+
+fn random_color() -> Color {
+    let mut rng = rand::thread_rng();
+    let die_color = Uniform::from(0.0..1.0);
+
+    Color::srgb(
+        die_color.sample(&mut rng),
+        die_color.sample(&mut rng),
+        die_color.sample(&mut rng)
+    )
 }
