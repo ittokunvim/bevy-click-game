@@ -26,10 +26,9 @@ fn setup(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
-    config: &mut Config,
+    config: Res<Config>,
 ) {
-    if config.startup { return };
-    config.startup = true;
+    if !config.setup_ingame { return };
 
     println!("ingame: setup");
     let mut rng = rand::thread_rng();
@@ -123,21 +122,8 @@ pub struct IngamePlugin;
 
 impl Plugin for IngamePlugin {
     fn build(&self, app: &mut App) {
-        let mut config = Config {
-            startup: false,
-        };
-
         app
-            .add_systems(
-                OnEnter(AppState::Ingame),
-                move |
-                commands: Commands,
-                meshes: ResMut<Assets<Mesh>>,
-                materials: ResMut<Assets<ColorMaterial>>
-                | {
-                    setup(commands, meshes, materials, &mut config);
-                }
-            )
+            .add_systems(OnEnter(AppState::Ingame), setup)
             .add_systems(Update, apply_velocity.run_if(in_state(AppState::Ingame)))
             .add_systems(Update, check_for_collisions.run_if(in_state(AppState::Ingame)))
             .add_systems(Update, mouse_click.run_if(in_state(AppState::Ingame)));

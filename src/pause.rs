@@ -24,10 +24,9 @@ fn setup(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
-    config: &mut Config,
+    config: Res<Config>,
 ) {
-    if config.startup { return };
-    config.startup = true;
+    if !config.setup_ingame { return };
 
     let layout = TextureAtlasLayout::from_grid(UVec2::splat(IMAGE_SIZE), 2, 1, None, None);
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
@@ -61,7 +60,8 @@ fn update(
     mouse_event: Res<ButtonInput<MouseButton>>,
     window_query: Query<&Window, With<PrimaryWindow>>,
     mut query: Query<(&Transform, &PauseButton, &mut TextureAtlas), With<PauseButton>>,
-    mut app_state: ResMut<NextState<AppState>>,
+    mut config: ResMut<Config>,
+    mut next_state: ResMut<NextState<AppState>>,
 ) {
     if !mouse_event.just_pressed(MouseButton::Left) { return; }
 
@@ -78,12 +78,19 @@ fn update(
     let distance = cursor_pos.distance(pausebutton_pos);
 
     if distance < SIZE - CURSOR_RANGE {
+        println!("pause: clicked");
         if atlas.index == prop.first {
+            println!("pause: toggled");
             atlas.index = prop.last;
-            app_state.set(AppState::Pause);
+            println!("pause: moved state to Pause from Ingame");
+            next_state.set(AppState::Pause);
         } else {
+            println!("pause: change config.setup_ingame to false");
+            config.setup_ingame = false;
+            println!("pause: toggled");
             atlas.index = prop.first;
-            app_state.set(AppState::Ingame);
+            println!("pause: moved state to Ingame from Pause");
+            next_state.set(AppState::Ingame);
         }
     }
 }
@@ -92,20 +99,8 @@ pub struct PauseButtonPlugin;
 
 impl Plugin for PauseButtonPlugin {
     fn build(&self, app: &mut App) {
-        let mut config = Config {
-            startup: false,
-        };
-
-        app.add_systems(
-            OnEnter(AppState::Ingame),
-            move |
-            cmd: Commands,
-            asset_server: Res<AssetServer>,
-            texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>
-            | {
-                setup(cmd, asset_server, texture_atlas_layouts, &mut config);
-            }
-        )
+        app
+            .add_systems(OnEnter(AppState::Ingame), setup)
             .add_systems(Update, update.run_if(in_state(AppState::Ingame)))
             .add_systems(Update, update.run_if(in_state(AppState::Pause)));
     }
