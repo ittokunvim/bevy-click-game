@@ -29,7 +29,10 @@ fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
-    println!("mainmenu: setup gametitle");
+    println!("mainmenu: setup");
+    // game title
+    let top = Val::Px(WINDOW_SIZE.y / 2.0 - GAMETITLE_FONT_SIZE / 2.0 - TEXT_PADDING);
+
     commands.spawn((
         TextBundle::from_section(
             GAMETITLE,
@@ -42,13 +45,15 @@ fn setup(
         .with_style(Style {
             position_type: PositionType::Relative,
             justify_self: JustifySelf::Center,
-            top: Val::Px(WINDOW_SIZE.y / 2.0 - GAMETITLE_FONT_SIZE / 2.0 - TEXT_PADDING),
+            top,
             ..default()
         }),
         Mainmenu,
     ))
     .insert(Name::new("gametitle"));
-    println!("mainmenu: setup clickstart");
+    // click start
+    let top = Val::Px(WINDOW_SIZE.y / 2.0 - CLICKSTART_FONT_SIZE / 2.0 + TEXT_PADDING);
+
     commands.spawn((
         TextBundle::from_section(
             CLICKSTART_TEXT,
@@ -61,13 +66,13 @@ fn setup(
         .with_style(Style {
             position_type: PositionType::Relative,
             justify_self: JustifySelf::Center,
-            top: Val::Px(WINDOW_SIZE.y / 2.0 - GAMETITLE_FONT_SIZE / 2.0 + TEXT_PADDING),
+            top,
             ..default()
         }),
         Mainmenu,
     ))
     .insert(Name::new("clickstart"));
-    println!("mainmenu: setup mainmenud");
+    // board
     commands.spawn((
         MaterialMesh2dBundle {
             mesh: Mesh2dHandle(meshes.add(Rectangle::new(BOARD_SIZE.x, BOARD_SIZE.y))),
@@ -77,7 +82,7 @@ fn setup(
         Mainmenu,
     ))
     .insert(Name::new("board"));
-    println!("mainmenu: setup image");
+    // image
     commands.spawn((
         SpriteBundle {
             texture: asset_server.load(PATH_IMAGE_MAINMENU),
@@ -93,16 +98,16 @@ fn update(
     mouse_event: Res<ButtonInput<MouseButton>>,
     mainmenu_query: Query<Entity, With<Mainmenu>>,
     mut commands: Commands,
-    mut app_state: ResMut<NextState<AppState>>,
+    mut next_state: ResMut<NextState<AppState>>,
 ) {
     if mouse_event.just_pressed(MouseButton::Left) {
         println!("mainmenu: mouse clicked");
-        println!("mainmenu: despawned entities");
+        println!("mainmenu: despawned");
         for mainmenu_entity in mainmenu_query.iter() {
             commands.entity(mainmenu_entity).despawn();
         }
-        println!("mainmenu: moved mainmenu -> ingame");
-        app_state.set(AppState::Ingame);
+        println!("mainmenu: moved state to Ingame from Mainmenu");
+        next_state.set(AppState::Ingame);
     }
 }
 

@@ -3,7 +3,6 @@ use bevy::{
     sprite::MaterialMesh2dBundle,
     window::PrimaryWindow,
 };
-
 use rand::distributions::{Distribution, Uniform};
 
 use crate::{
@@ -13,7 +12,7 @@ use crate::{
     Config,
 };
 
-#[derive(Default, Component, Debug)]
+#[derive(Component)]
 struct Ball;
 
 #[derive(Component, Deref, DerefMut)]
@@ -32,7 +31,7 @@ fn setup(
     if config.startup { return };
     config.startup = true;
 
-    println!("ingame: setup balls");
+    println!("ingame: setup");
     let mut rng = rand::thread_rng();
     let die_width = Uniform::from(-WINDOW_SIZE.x / 2.0 + BALL_SIZE.x..WINDOW_SIZE.x / 2.0 - BALL_SIZE.x);
     let die_height = Uniform::from(-WINDOW_SIZE.y / 2.0 + BALL_SIZE.y..WINDOW_SIZE.y / 2.0 - BALL_SIZE.y);
@@ -101,7 +100,6 @@ fn mouse_click(
     balls_query: Query<(Entity, &Transform), With<Ball>>,
 ) {
     if !mouse_event.just_pressed(MouseButton::Left) { return }
-    println!("ingame: mouse clicked");
 
     let window = window_query.single();
     let mut cursor_pos = window.cursor_position().unwrap();
@@ -115,7 +113,7 @@ fn mouse_click(
         let distance = cursor_pos.distance(ball_pos);
 
         if distance < BALL_SIZE.x - CURSOR_RANGE {
-            println!("ingame: despawned ball entity");
+            println!("ingame: despawned ball");
             commands.entity(ball_entity).despawn();
         }
     }
