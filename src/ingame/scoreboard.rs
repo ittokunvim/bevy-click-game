@@ -4,9 +4,9 @@ use crate::{
     PATH_FONT,
     AppState,
     Config,
-    Ballcount,
+    BallCount,
+    GameTimer,
 };
-use crate::ingame::GameTimer;
 
 const BALLCOUNT_TEXT: &str = "ボールのこり: ";
 const TIMER_TEXT: &str = " | タイム: ";
@@ -70,12 +70,12 @@ fn setup(
 
 fn update(
     mut query: Query<&mut Text, With<ScoreboardUi>>,
-    ballcount: Res<Ballcount>,
+    ball_count: Res<BallCount>,
     timer: Res<GameTimer>,
 ) {
     let mut text = query.single_mut();
     // write ballcount and timer
-    text.sections[1].value = ballcount.to_string();
+    text.sections[1].value = ball_count.to_string();
     text.sections[3].value = timer.0.remaining_secs().round().to_string();
 }
 
@@ -84,9 +84,7 @@ fn despawn(
     query: Query<Entity, With<ScoreboardUi>>,
 ) {
     println!("scoreboard: despawn");
-    let entity = query.single();
-
-    commands.entity(entity).despawn();
+    for entity in query.iter() { commands.entity(entity).despawn() }
 }
 
 pub struct ScoreboardPlugin;
@@ -96,6 +94,7 @@ impl Plugin for ScoreboardPlugin {
         app
             .add_systems(OnEnter(AppState::Ingame), setup)
             .add_systems(Update, update.run_if(in_state(AppState::Ingame)))
-            .add_systems(OnEnter(AppState::Gameover), despawn);
+            .add_systems(OnEnter(AppState::Gameover), despawn)
+        ;
     }
 }

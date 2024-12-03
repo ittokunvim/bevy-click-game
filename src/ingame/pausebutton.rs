@@ -22,8 +22,8 @@ struct Pausebutton {
 
 fn setup(
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
     mut texture_atlas_layouts: ResMut<Assets<TextureAtlasLayout>>,
+    asset_server: Res<AssetServer>,
     config: Res<Config>,
 ) {
     if !config.setup_ingame { return };
@@ -58,11 +58,11 @@ fn setup(
 }
 
 fn update(
-    mouse_event: Res<ButtonInput<MouseButton>>,
-    window_query: Query<&Window, With<PrimaryWindow>>,
     mut query: Query<(&Transform, &Pausebutton, &mut TextureAtlas), With<Pausebutton>>,
     mut config: ResMut<Config>,
     mut next_state: ResMut<NextState<AppState>>,
+    mouse_event: Res<ButtonInput<MouseButton>>,
+    window_query: Query<&Window, With<PrimaryWindow>>,
 ) {
     if !mouse_event.just_pressed(MouseButton::Left) { return; }
 
@@ -102,9 +102,7 @@ fn despawn(
     query: Query<Entity, With<Pausebutton>>,
 ) {
     println!("pausebutton: despawn");
-    let entity = query.single();
-
-    commands.entity(entity).despawn();
+    for entity in query.iter() { commands.entity(entity).despawn() }
 }
 
 pub struct PausebuttonPlugin;
@@ -115,6 +113,7 @@ impl Plugin for PausebuttonPlugin {
             .add_systems(OnEnter(AppState::Ingame), setup)
             .add_systems(Update, update.run_if(in_state(AppState::Ingame)))
             .add_systems(Update, update.run_if(in_state(AppState::Pause)))
-            .add_systems(OnEnter(AppState::Gameover), despawn);
+            .add_systems(OnEnter(AppState::Gameover), despawn)
+        ;
     }
 }

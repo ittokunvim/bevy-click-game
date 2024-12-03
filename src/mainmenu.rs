@@ -25,9 +25,9 @@ struct Mainmenu;
 
 fn setup(
     mut commands: Commands,
-    asset_server: Res<AssetServer>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
+    asset_server: Res<AssetServer>,
 ) {
     println!("mainmenu: setup");
     // game title
@@ -95,20 +95,19 @@ fn setup(
 }
 
 fn update(
-    mouse_event: Res<ButtonInput<MouseButton>>,
-    mainmenu_query: Query<Entity, With<Mainmenu>>,
     mut commands: Commands,
     mut next_state: ResMut<NextState<AppState>>,
+    mouse_event: Res<ButtonInput<MouseButton>>,
+    query: Query<Entity, With<Mainmenu>>,
 ) {
-    if mouse_event.just_pressed(MouseButton::Left) {
-        println!("mainmenu: mouse clicked");
-        println!("mainmenu: despawned");
-        for mainmenu_entity in mainmenu_query.iter() {
-            commands.entity(mainmenu_entity).despawn();
-        }
-        println!("mainmenu: moved state to Ingame from Mainmenu");
-        next_state.set(AppState::Ingame);
+    if !mouse_event.just_pressed(MouseButton::Left) { return }
+
+    println!("mainmenu: despawned");
+    for entity in query.iter() {
+        commands.entity(entity).despawn();
     }
+    println!("mainmenu: moved state to Ingame from Mainmenu");
+    next_state.set(AppState::Ingame);
 }
 
 pub struct MainmenuPlugin;
@@ -117,6 +116,7 @@ impl Plugin for MainmenuPlugin {
     fn build(&self, app: &mut App) {
         app
             .add_systems(OnEnter(AppState::Mainmenu), setup)
-            .add_systems(Update, update.run_if(in_state(AppState::Mainmenu)));
+            .add_systems(Update, update.run_if(in_state(AppState::Mainmenu)))
+        ;
     }
 }

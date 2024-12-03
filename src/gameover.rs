@@ -5,7 +5,7 @@ use crate::{
     PATH_FONT,
     AppState,
     Config,
-    Ballcount,
+    BallCount,
 };
 
 const GAMEOVER_TEXT: &str = "ゲームオーバー";
@@ -23,7 +23,7 @@ struct Gameover;
 fn setup(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
-    ballcount: Res<Ballcount>,
+    ball_count: Res<BallCount>,
 ) {
     println!("gameover: setup");
     // gameover
@@ -52,7 +52,7 @@ fn setup(
 
     commands.spawn((
         TextBundle::from_section(
-            format!("{}{}", BALLCOUNT_TEXT, **ballcount), 
+            format!("{}{}", BALLCOUNT_TEXT, **ball_count), 
             TextStyle {
                 font: asset_server.load(PATH_FONT),
                 font_size: TEXT_FONT_SIZE,
@@ -113,9 +113,9 @@ fn setup(
 }
 
 fn update(
-    keyboard_input: Res<ButtonInput<KeyCode>>,
     mut config: ResMut<Config>,
     mut next_state: ResMut<NextState<AppState>>,
+    keyboard_input: Res<ButtonInput<KeyCode>>,
 ) {
     let mut closure = |key: &KeyCode, app_state: AppState| {
         println!("gameover: {:?} just pressed", key);
@@ -139,9 +139,7 @@ fn despawn(
     query: Query<Entity, With<Gameover>>,
 ) {
     println!("gameover: despawned");
-    for entity in query.iter() {
-        commands.entity(entity).despawn();
-    }
+    for entity in query.iter() { commands.entity(entity).despawn() }
 }
 
 pub struct GameoverPlugin;
@@ -151,6 +149,7 @@ impl Plugin for GameoverPlugin {
         app
             .add_systems(OnEnter(AppState::Gameover), setup)
             .add_systems(Update, update.run_if(in_state(AppState::Gameover)))
-            .add_systems(OnExit(AppState::Gameover), despawn);
+            .add_systems(OnExit(AppState::Gameover), despawn)
+        ;
     }
 }

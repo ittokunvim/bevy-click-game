@@ -11,7 +11,7 @@ use crate::{
     BALL_COUNT,
     AppState,
     Config,
-    Ballcount,
+    BallCount,
 };
 
 #[derive(Component)]
@@ -28,11 +28,11 @@ fn setup(
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
     config: Res<Config>,
-    ballcount: Res<Ballcount>,
+    ball_count: Res<BallCount>,
 ) {
     if !config.setup_ingame { return };
 
-    println!("ball: setup");
+    println!("balls: setup");
     let mut rng = rand::thread_rng();
     let die_color = Uniform::from(0.0..1.0);
     let die_width = Uniform::from(
@@ -44,7 +44,7 @@ fn setup(
     let die_z = Uniform::from(0.0..100.0);
     let die_velocity = Uniform::from(-0.5..0.5);
 
-    for _ in 0..**ballcount {
+    for _ in 0..**ball_count {
         let ball_color = Color::srgb(
             die_color.sample(&mut rng),
             die_color.sample(&mut rng),
@@ -65,7 +65,7 @@ fn setup(
                 mesh: meshes.add(Circle::default()).into(),
                 material: materials.add(ColorMaterial::from(ball_color)),
                 transform: Transform::from_translation(ball_pos).with_scale(BALL_SIZE),
-                ..default()
+                ..Default::default()
             },
             Ball,
             Velocity(velocity_pos * BALL_SPEED),
@@ -84,7 +84,9 @@ fn apply_velocity(
     }
 }
 
-fn check_for_collisions(mut query: Query<(&mut Velocity, &Transform), With<Ball>>) {
+fn check_for_collisions(
+    mut query: Query<(&mut Velocity, &Transform), With<Ball>>,
+) {
     for (mut velocity, transform) in query.iter_mut() {
         let size = transform.scale.truncate();
         let left_window_collision =
@@ -107,10 +109,10 @@ fn check_for_collisions(mut query: Query<(&mut Velocity, &Transform), With<Ball>
 
 fn mouse_click(
     mut commands: Commands,
+    mut ball_count: ResMut<BallCount>,
     window_query: Query<&Window, With<PrimaryWindow>>,
     mouse_event: Res<ButtonInput<MouseButton>>,
     balls_query: Query<(Entity, &Transform), With<Ball>>,
-    mut ballcount: ResMut<Ballcount>,
 ) {
     if !mouse_event.just_pressed(MouseButton::Left) { return }
 
@@ -126,9 +128,9 @@ fn mouse_click(
         let distance = cursor_pos.distance(ball_pos);
 
         if distance < BALL_SIZE.x - CURSOR_RANGE {
-            println!("ball: ballcount from {} to {}", **ballcount, **ballcount - 1);
-            **ballcount -= 1;
-            println!("ball: despawned");
+            println!("balls: ballCount from {} to {}", **ball_count, **ball_count - 1);
+            **ball_count -= 1;
+            println!("balls: despawn");
             commands.entity(ball_entity).despawn();
         }
     }
@@ -138,20 +140,20 @@ fn despawn(
     mut commands: Commands,
     query: Query<Entity, With<Ball>>,
 ) {
-    println!("ball: despawned all");
-    for entity in query.iter() {
-        commands.entity(entity).despawn();
-    }
+    println!("balls: despawn all");
+    for entity in query.iter() { commands.entity(entity).despawn() }
 }
 
-fn reset_ballcount(mut ballcount: ResMut<Ballcount>) {
-    println!("ball: reset ballcount");
-    **ballcount = BALL_COUNT;
+fn reset_ball_count(
+    mut ball_count: ResMut<BallCount>,
+) {
+    println!("balls: reset ballCount");
+    **ball_count = BALL_COUNT;
 }
 
-pub struct BallPlugin;
+pub struct BallsPlugin;
 
-impl Plugin for BallPlugin {
+impl Plugin for BallsPlugin {
     fn build(&self, app: &mut App) {
         app
             .add_systems(OnEnter(AppState::Ingame), setup)
@@ -159,7 +161,7 @@ impl Plugin for BallPlugin {
             .add_systems(Update, check_for_collisions.run_if(in_state(AppState::Ingame)))
             .add_systems(Update, mouse_click.run_if(in_state(AppState::Ingame)))
             .add_systems(OnEnter(AppState::Gameover), despawn)
-            .add_systems(OnExit(AppState::Gameover), reset_ballcount)
+            .add_systems(OnExit(AppState::Gameover), reset_ball_count)
         ;
     }
 }
