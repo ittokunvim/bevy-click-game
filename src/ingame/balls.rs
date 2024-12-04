@@ -17,7 +17,7 @@ use crate::{
 #[derive(Component)]
 struct Ball;
 
-#[derive(Component, Deref, DerefMut)]
+#[derive(Component, Deref, DerefMut, Debug)]
 struct Velocity(Vec2);
 
 const BALL_SIZE: Vec3 = Vec3::new(30.0, 30.0, 0.0);
@@ -78,7 +78,7 @@ fn apply_velocity(
     }
 }
 
-fn check_for_collisions(
+fn check_wall_collisions(
     mut query: Query<(&Handle<ColorMaterial>, &mut Velocity, &Transform), With<Ball>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
 ) {
@@ -107,6 +107,39 @@ fn check_for_collisions(
                 velocity.y = -velocity.y;
                 color_material.color = random_color();
             }
+        }
+    }
+}
+
+fn check_ball_collisions(
+    mut query: Query<(&Handle<ColorMaterial>, &mut Velocity, &Transform), With<Ball>>,
+    mut materials: ResMut<Assets<ColorMaterial>>,
+    time_step: Res<Time<Fixed>>,
+) {
+    let mut combinations = query.iter_combinations_mut();
+
+    while let Some([ball1, ball2]) = combinations.fetch_next() {
+        let (handle_1, mut velocity_1, transform_1) = ball1;
+        let (handle_2, mut velocity_2, transform_2) = ball2;
+        let position_1 = transform_1.translation.truncate();
+        let position_2 = transform_2.translation.truncate();
+        let direction_1 = velocity_1.xy() * time_step.delta().as_secs_f32();
+        let direction_2 = velocity_2.xy() * time_step.delta().as_secs_f32();
+        let collision = (
+            (position_1.x + direction_1.x * 2.0 - position_2.x - direction_2.x * 2.0).powi(2) +
+            (position_1.y + direction_1.y * 2.0 - position_2.y - direction_2.y * 2.0).powi(2)
+        ) <= BALL_SIZE.x.powi(2);
+
+        if collision {
+            let color_material: &mut ColorMaterial = materials.get_mut(handle_1.id()).unwrap();
+            color_material.color = random_color();
+            let color_material: &mut ColorMaterial = materials.get_mut(handle_2.id()).unwrap();
+            color_material.color = random_color();
+
+            velocity_1.x += (direction_2.x - direction_1.x) / time_step.delta().as_secs_f32();
+            velocity_1.y += (direction_2.y - direction_1.y) / time_step.delta().as_secs_f32();
+            velocity_2.x += (direction_1.x - direction_2.x) / time_step.delta().as_secs_f32();
+            velocity_2.y += (direction_1.y - direction_2.y) / time_step.delta().as_secs_f32();
         }
     }
 }
@@ -167,7 +200,8 @@ impl Plugin for BallsPlugin {
         app
             .add_systems(OnEnter(AppState::Ingame), setup)
             .add_systems(Update, apply_velocity.run_if(in_state(AppState::Ingame)))
-            .add_systems(Update, check_for_collisions.run_if(in_state(AppState::Ingame)))
+            .add_systems(Update, check_wall_collisions.run_if(in_state(AppState::Ingame)))
+            .add_systems(Update, check_ball_collisions.run_if(in_state(AppState::Ingame)))
             .add_systems(Update, mouse_click.run_if(in_state(AppState::Ingame)))
             .add_systems(OnEnter(AppState::Gameover), despawn)
             .add_systems(OnExit(AppState::Gameover), reset_ball_count)
