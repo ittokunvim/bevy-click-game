@@ -22,6 +22,7 @@ struct Velocity(Vec2);
 
 const BALL_SIZE: Vec3 = Vec3::new(30.0, 30.0, 0.0);
 const BALL_SPEED: f32 = 400.0;
+const BALL_PADDING: f32 = 20.0;
 
 fn setup(
     mut commands: Commands,
@@ -34,21 +35,13 @@ fn setup(
 
     println!("balls: setup");
     let mut rng = rand::thread_rng();
-    let die_width = Uniform::from(
-        -WINDOW_SIZE.x / 2.0 + BALL_SIZE.x..WINDOW_SIZE.x / 2.0 - BALL_SIZE.x
-    );
-    let die_height = Uniform::from(
-        -WINDOW_SIZE.y / 2.0 + BALL_SIZE.y..WINDOW_SIZE.y / 2.0 - BALL_SIZE.y
-    );
-    let die_z = Uniform::from(0.0..100.0);
     let die_velocity = Uniform::from(-0.5..0.5);
+    let ball_positions = set_ball_positions();
 
-    for _ in 0..**ball_count {
-        let ball_pos = Vec3::new(
-            die_width.sample(&mut rng),
-            die_height.sample(&mut rng),
-            die_z.sample(&mut rng),
-        );
+    if ball_positions.len() < **ball_count { error!("ball_positions is not long enough.") }
+
+    for i in 0..**ball_count {
+        let ball_pos = ball_positions[i] + BALL_PADDING;
         let velocity_pos = Vec2::new(
             die_velocity.sample(&mut rng),
             die_velocity.sample(&mut rng),
@@ -220,4 +213,31 @@ fn random_color() -> Color {
         die_color.sample(&mut rng),
         die_color.sample(&mut rng)
     )
+}
+
+fn set_ball_positions() -> Vec<Vec3> {
+    vec![
+        Vec3::new(BALL_SIZE.x *  0.0, BALL_SIZE.y *  0.0,  0.0),
+        Vec3::new(BALL_SIZE.x *  0.0, BALL_SIZE.y *  1.0,  1.0),
+        Vec3::new(BALL_SIZE.x *  1.0, BALL_SIZE.y *  1.0,  2.0),
+        Vec3::new(BALL_SIZE.x *  1.0, BALL_SIZE.y *  0.0,  3.0),
+        Vec3::new(BALL_SIZE.x *  1.0, BALL_SIZE.y * -1.0,  4.0),
+        Vec3::new(BALL_SIZE.x *  0.0, BALL_SIZE.y * -1.0,  5.0),
+        Vec3::new(BALL_SIZE.x * -1.0, BALL_SIZE.y * -1.0,  6.0),
+        Vec3::new(BALL_SIZE.x * -1.0, BALL_SIZE.y *  0.0,  7.0),
+        Vec3::new(BALL_SIZE.x * -1.0, BALL_SIZE.y *  1.0,  8.0),
+        Vec3::new(BALL_SIZE.x * -1.0, BALL_SIZE.y *  2.0,  8.0),
+        Vec3::new(BALL_SIZE.x *  0.0, BALL_SIZE.y *  2.0,  9.0),
+        Vec3::new(BALL_SIZE.x *  1.0, BALL_SIZE.y *  2.0, 10.0),
+        Vec3::new(BALL_SIZE.x *  2.0, BALL_SIZE.y *  2.0, 11.0),
+        Vec3::new(BALL_SIZE.x *  2.0, BALL_SIZE.y *  1.0, 12.0),
+        Vec3::new(BALL_SIZE.x *  2.0, BALL_SIZE.y *  0.0, 13.0),
+        Vec3::new(BALL_SIZE.x *  2.0, BALL_SIZE.y * -1.0, 14.0),
+        Vec3::new(BALL_SIZE.x *  2.0, BALL_SIZE.y * -2.0, 15.0),
+        Vec3::new(BALL_SIZE.x *  1.0, BALL_SIZE.y * -2.0, 16.0),
+        Vec3::new(BALL_SIZE.x *  0.0, BALL_SIZE.y * -2.0, 17.0),
+        Vec3::new(BALL_SIZE.x * -1.0, BALL_SIZE.y * -2.0, 18.0),
+        Vec3::new(BALL_SIZE.x * -2.0, BALL_SIZE.y * -2.0, 19.0),
+        Vec3::new(BALL_SIZE.x * -2.0, BALL_SIZE.y * -1.0, 20.0),
+    ]
 }
