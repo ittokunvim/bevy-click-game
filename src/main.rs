@@ -15,6 +15,8 @@ const PATH_FONT: &str = "fonts/misaki_gothic.ttf";
 const PATH_IMAGE_MAINMENU: &str = "images/mainmenu.png";
 const PATH_IMAGE_PAUSEBUTTON: &str = "images/pausebutton.png";
 const PATH_SOUND_BGM: &str = "sounds/bgm.ogg";
+const PATH_SOUND_CLICK: &str = "sounds/click.ogg";
+const PATH_SOUND_COLLISION: &str = "sounds/collision.ogg";
 
 #[derive(States, Default, Debug, Clone, PartialEq, Eq, Hash)]
 enum AppState {
@@ -37,6 +39,9 @@ struct BallCount(usize);
 #[derive(Resource)]
 struct GameTimer(Timer);
 
+#[derive(Resource, Deref)]
+struct ClickSound(Handle<AudioSource>);
+
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins
@@ -58,6 +63,7 @@ fn main() {
             Timer::from_seconds(GAMETIME_LIMIT, TimerMode::Once)
         ))
         .add_systems(Startup, setup)
+        .add_systems(Update, update)
         .add_plugins(mainmenu::MainmenuPlugin)
         .add_plugins(ingame::IngamePlugin)
         .add_plugins(gameover::GameoverPlugin)
@@ -72,6 +78,9 @@ fn setup(
     println!("main: setup");
     // camera
     commands.spawn(Camera2dBundle::default());
+    // click sound
+    let click_sound = asset_server.load(PATH_SOUND_CLICK);
+    commands.insert_resource(ClickSound(click_sound));
     // bgm
     let bgm_sound = asset_server.load(PATH_SOUND_BGM);
 
@@ -82,4 +91,17 @@ fn setup(
         }
     )
     .insert(Name::new("bgm"));
+}
+
+fn update(
+    mut commands: Commands,
+    mouse_event: Res<ButtonInput<MouseButton>>,
+    sound: Res<ClickSound>,
+) {
+    if !mouse_event.just_pressed(MouseButton::Left) { return }
+    // play click sound
+    commands.spawn(AudioBundle {
+        source: sound.clone(),
+        settings: PlaybackSettings::DESPAWN
+    });
 }
