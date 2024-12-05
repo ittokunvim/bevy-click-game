@@ -9,6 +9,7 @@ use crate::{
     WINDOW_SIZE,
     CURSOR_RANGE,
     BALL_COUNT,
+    PATH_SOUND_DESPAWN,
     AppState,
     Config,
     BallCount,
@@ -20,22 +21,33 @@ struct Ball;
 #[derive(Component, Deref, DerefMut, Debug)]
 struct Velocity(Vec2);
 
+#[derive(Resource, Deref)]
+struct DespawnSound(Handle<AudioSource>);
+
+#[derive(Event, Default)]
+struct DespawnEvent;
+
 const BALL_SIZE: Vec3 = Vec3::new(30.0, 30.0, 0.0);
-const BALL_SPEED: f32 = 400.0;
+const BALL_SPEED: f32 = 120.0;
 const BALL_PADDING: f32 = 20.0;
 
 fn setup(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<ColorMaterial>>,
+    asset_server: Res<AssetServer>,
     config: Res<Config>,
     ball_count: Res<BallCount>,
 ) {
     if !config.setup_ingame { return };
 
     println!("balls: setup");
+    // despawn sound
+    let despawn_sound = asset_server.load(PATH_SOUND_DESPAWN);
+    commands.insert_resource(DespawnSound(despawn_sound));
+    // balls
     let mut rng = rand::thread_rng();
-    let die_velocity = Uniform::from(-0.5..0.5);
+    let die_velocity = Uniform::from(-2.0..2.0);
     let ball_positions = set_ball_positions();
 
     if ball_positions.len() < **ball_count { error!("ball_positions is not long enough.") }
@@ -141,6 +153,7 @@ fn mouse_click(
     mut commands: Commands,
     mut ball_count: ResMut<BallCount>,
     mut next_state: ResMut<NextState<AppState>>,
+    mut despawn_events: EventWriter<DespawnEvent>,
     window_query: Query<&Window, With<PrimaryWindow>>,
     mouse_event: Res<ButtonInput<MouseButton>>,
     balls_query: Query<(Entity, &Transform), With<Ball>>,
@@ -159,9 +172,9 @@ fn mouse_click(
         let distance = cursor_pos.distance(ball_pos);
 
         if distance < BALL_SIZE.x - CURSOR_RANGE {
-            println!("balls: ballCount from {} to {}", **ball_count, **ball_count - 1);
+            println!("balls: despawn ball from {} to {}", **ball_count, **ball_count - 1);
             **ball_count -= 1;
-            println!("balls: despawn");
+            despawn_events.send_default();
             commands.entity(ball_entity).despawn();
             if **ball_count <= 0 {
                 println!("balls: moved state to Gameclear from Ingame");
@@ -169,6 +182,19 @@ fn mouse_click(
             }
         }
     }
+}
+
+fn play_despawn_sound(
+    mut commands: Commands,
+    mut events: EventReader<DespawnEvent>,
+    sound: Res<DespawnSound>,
+) {
+    if events.is_empty() { return }
+    events.clear();
+    commands.spawn(AudioBundle {
+        source: sound.clone(),
+        settings: PlaybackSettings::DESPAWN,
+    });
 }
 
 fn despawn(
@@ -191,11 +217,13 @@ pub struct BallsPlugin;
 impl Plugin for BallsPlugin {
     fn build(&self, app: &mut App) {
         app
+            .add_event::<DespawnEvent>()
             .add_systems(OnEnter(AppState::Ingame), setup)
             .add_systems(Update, apply_velocity.run_if(in_state(AppState::Ingame)))
             .add_systems(Update, check_wall_collisions.run_if(in_state(AppState::Ingame)))
             .add_systems(Update, check_ball_collisions.run_if(in_state(AppState::Ingame)))
             .add_systems(Update, mouse_click.run_if(in_state(AppState::Ingame)))
+            .add_systems(Update, play_despawn_sound.run_if(in_state(AppState::Ingame)))
             .add_systems(OnEnter(AppState::Gameover), despawn)
             .add_systems(OnExit(AppState::Gameover), reset_ball_count)
             .add_systems(OnEnter(AppState::Gameclear), despawn)

@@ -16,7 +16,7 @@ const PATH_IMAGE_MAINMENU: &str = "images/mainmenu.png";
 const PATH_IMAGE_PAUSEBUTTON: &str = "images/pausebutton.png";
 const PATH_SOUND_BGM: &str = "sounds/bgm.ogg";
 const PATH_SOUND_CLICK: &str = "sounds/click.ogg";
-const PATH_SOUND_COLLISION: &str = "sounds/collision.ogg";
+const PATH_SOUND_DESPAWN: &str = "sounds/despawn.ogg";
 
 #[derive(States, Default, Debug, Clone, PartialEq, Eq, Hash)]
 enum AppState {
