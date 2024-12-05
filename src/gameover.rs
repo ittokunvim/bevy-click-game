@@ -9,13 +9,13 @@ use crate::{
 };
 
 const GAMEOVER_TEXT: &str = "ゲームオーバー";
-const GAMEOVER_FONT_SIZE: f32 = 32.0;
+const GAMEOVER_SIZE: f32 = 32.0;
 const BALLCOUNT_TEXT: &str = "のこったボールのかず: ";
 const RETRY_TEXT: &str = "リトライ: Key[R]";
 const BACKTOTITLE_TEXT: &str = "タイトルに戻る: Key[B]";
 const TEXT_COLOR: Color = Color::srgb(0.9, 0.9, 0.9);
-const TEXT_FONT_SIZE: f32 = 20.0;
-const TEXT_PADDING: f32 = 40.0;
+const TEXT_SIZE: f32 = 20.0;
+const TEXT_PADDING: f32 = 50.0;
 
 #[derive(Component)]
 struct Gameover;
@@ -27,14 +27,14 @@ fn setup(
 ) {
     println!("gameover: setup");
     // gameover
-    let top = Val::Px(WINDOW_SIZE.y / 2.0 - GAMEOVER_FONT_SIZE / 2.0 - TEXT_PADDING * 1.5);
+    let top = Val::Px(WINDOW_SIZE.y / 2.0 - GAMEOVER_SIZE / 2.0 - TEXT_PADDING * 1.5);
 
     commands.spawn((
         TextBundle::from_section(
             GAMEOVER_TEXT,
             TextStyle {
                 font: asset_server.load(PATH_FONT),
-                font_size: GAMEOVER_FONT_SIZE,
+                font_size: GAMEOVER_SIZE,
                 color: TEXT_COLOR,
             }
         )
@@ -48,14 +48,14 @@ fn setup(
     ))
     .insert(Name::new("gameover"));
     // ballcount
-    let top = Val::Px(WINDOW_SIZE.y / 2.0 - TEXT_FONT_SIZE / 2.0 - TEXT_PADDING * 0.5);
+    let top = Val::Px(WINDOW_SIZE.y / 2.0 - TEXT_SIZE / 2.0 - TEXT_PADDING * 0.5);
 
     commands.spawn((
         TextBundle::from_section(
             format!("{}{}", BALLCOUNT_TEXT, **ball_count), 
             TextStyle {
                 font: asset_server.load(PATH_FONT),
-                font_size: TEXT_FONT_SIZE,
+                font_size: TEXT_SIZE,
                 color: TEXT_COLOR,
             }
         )
@@ -69,14 +69,14 @@ fn setup(
     ))
     .insert(Name::new("ballcount"));
     // retry
-    let top = Val::Px(WINDOW_SIZE.y / 2.0 - TEXT_FONT_SIZE / 2.0 + TEXT_PADDING * 0.5);
+    let top = Val::Px(WINDOW_SIZE.y / 2.0 - TEXT_SIZE / 2.0 + TEXT_PADDING * 0.5);
 
     commands.spawn((
         TextBundle::from_section(
             RETRY_TEXT, 
             TextStyle {
                 font: asset_server.load(PATH_FONT),
-                font_size: TEXT_FONT_SIZE,
+                font_size: TEXT_SIZE,
                 color: TEXT_COLOR,
             }
         )
@@ -90,14 +90,14 @@ fn setup(
     ))
     .insert(Name::new("retry"));
     // back to title
-    let top = Val::Px(WINDOW_SIZE.y / 2.0 - TEXT_FONT_SIZE / 2.0 + TEXT_PADDING * 1.5);
+    let top = Val::Px(WINDOW_SIZE.y / 2.0 - TEXT_SIZE / 2.0 + TEXT_PADDING * 1.5);
 
     commands.spawn((
         TextBundle::from_section(
             BACKTOTITLE_TEXT, 
             TextStyle {
                 font: asset_server.load(PATH_FONT),
-                font_size: TEXT_FONT_SIZE,
+                font_size: TEXT_SIZE,
                 color: TEXT_COLOR,
             }
         )
@@ -117,8 +117,7 @@ fn update(
     mut next_state: ResMut<NextState<AppState>>,
     keyboard_input: Res<ButtonInput<KeyCode>>,
 ) {
-    let mut closure = |key: &KeyCode, app_state: AppState| {
-        println!("gameover: {:?} just pressed", key);
+    let mut closure = |app_state: AppState| {
         println!("gameover: change config.setup_ingame to true");
         config.setup_ingame = true;
         println!("gameover: moved state to {:?} from Gameover", app_state);
@@ -127,8 +126,8 @@ fn update(
 
     for key in keyboard_input.get_just_pressed() {
         match key {
-            KeyCode::KeyR => closure(key, AppState::Ingame),
-            KeyCode::KeyB => closure(key, AppState::Mainmenu),
+            KeyCode::KeyR => closure(AppState::Ingame),
+            KeyCode::KeyB => closure(AppState::Mainmenu),
             _ => {},
         }
     }
@@ -138,7 +137,7 @@ fn despawn(
     mut commands: Commands,
     query: Query<Entity, With<Gameover>>,
 ) {
-    println!("gameover: despawned");
+    println!("gameover: despawn");
     for entity in query.iter() { commands.entity(entity).despawn() }
 }
 

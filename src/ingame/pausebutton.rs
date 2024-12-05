@@ -13,8 +13,9 @@ use crate::{
 
 const IMAGE_SIZE: u32 = 64;
 const SIZE: f32 = 32.0;
+const PADDING: f32 = 5.0;
 
-#[derive(Default, Component, Debug)]
+#[derive(Component)]
 struct Pausebutton {
     first: usize,
     last: usize,
@@ -33,20 +34,20 @@ fn setup(
     let texture_atlas_layout = texture_atlas_layouts.add(layout);
     let animation_indices = Pausebutton { first: 0, last: 1 };
     let pos = Vec3::new(
-        WINDOW_SIZE.x / 2.0 - SIZE,
-        -WINDOW_SIZE.y / 2.0 + SIZE,
-        10.0
+        WINDOW_SIZE.x / 2.0 - SIZE / 2.0 - PADDING,
+        -WINDOW_SIZE.y / 2.0 + SIZE / 2.0 + PADDING,
+        99.0
     );
 
     commands.spawn((
         SpriteBundle {
             sprite: Sprite {
                 custom_size: Some(Vec2::splat(SIZE)),
-                ..default()
+                ..Default::default()
             },
             texture: asset_server.load(PATH_IMAGE_PAUSEBUTTON),
             transform: Transform::from_translation(pos),
-            ..default()
+            ..Default::default()
         },
         TextureAtlas {
             layout: texture_atlas_layout,
@@ -61,16 +62,15 @@ fn update(
     mut query: Query<(&Transform, &Pausebutton, &mut TextureAtlas), With<Pausebutton>>,
     mut config: ResMut<Config>,
     mut next_state: ResMut<NextState<AppState>>,
-    mouse_event: Res<ButtonInput<MouseButton>>,
+    mouse_events: Res<ButtonInput<MouseButton>>,
     window_query: Query<&Window, With<PrimaryWindow>>,
 ) {
-    if !mouse_event.just_pressed(MouseButton::Left) { return; }
+    if !mouse_events.just_pressed(MouseButton::Left) { return }
 
     let window = window_query.single();
     let mut cursor_pos = window.cursor_position().unwrap();
-    let Ok((transform, prop, mut atlas)) = query.get_single_mut() else { return; };
+    let Ok((transform, prop, mut atlas)) = query.get_single_mut() else { return };
     let pausebutton_pos = transform.translation.truncate();
-    // get cursor position
     cursor_pos = Vec2::new(
         cursor_pos.x - WINDOW_SIZE.x / 2.0,
         -cursor_pos.y + WINDOW_SIZE.y / 2.0

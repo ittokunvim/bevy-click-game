@@ -10,13 +10,13 @@ use crate::{
 };
 
 const GAMECLEAR_TEXT: &str = "ゲームクリア";
-const GAMECLEAR_FONT_SIZE: f32 = 32.0;
+const GAMECLEAR_SIZE: f32 = 32.0;
 const TIMER_TEXT: &str = "クリアタイム: ";
 const RETRY_TEXT: &str = "リトライ: Key[R]";
 const BACKTOTITLE_TEXT: &str = "タイトルに戻る: Key[B]";
 const TEXT_COLOR: Color = Color::srgb(0.9, 0.9, 0.9);
-const TEXT_FONT_SIZE: f32 = 20.0;
-const TEXT_PADDING: f32 = 40.0;
+const TEXT_SIZE: f32 = 20.0;
+const TEXT_PADDING: f32 = 50.0;
 
 #[derive(Component)]
 struct Gameclear;
@@ -28,14 +28,14 @@ fn setup(
 ) {
     println!("gameclear: setup");
     // gameover
-    let top = WINDOW_SIZE.y / 2.0 - GAMECLEAR_FONT_SIZE / 2.0 - TEXT_PADDING * 1.5;
+    let top = WINDOW_SIZE.y / 2.0 - GAMECLEAR_SIZE / 2.0 - TEXT_PADDING * 1.5;
 
     commands.spawn((
         TextBundle::from_section(
             GAMECLEAR_TEXT, 
             TextStyle {
                 font: asset_server.load(PATH_FONT),
-                font_size: GAMECLEAR_FONT_SIZE,
+                font_size: GAMECLEAR_SIZE,
                 color: TEXT_COLOR,
             }
         )
@@ -49,7 +49,7 @@ fn setup(
     ))
     .insert(Name::new("gameclear"));
     // timer
-    let top = WINDOW_SIZE.y / 2.0 - TEXT_FONT_SIZE / 2.0 - TEXT_PADDING * 0.5;
+    let top = WINDOW_SIZE.y / 2.0 - TEXT_SIZE / 2.0 - TEXT_PADDING * 0.5;
     let cleartime = GAMETIME_LIMIT - (timer.0.remaining_secs() * 100.0).round() / 100.0;
 
     commands.spawn((
@@ -57,7 +57,7 @@ fn setup(
             format!("{}{}", TIMER_TEXT, cleartime),
             TextStyle {
                 font: asset_server.load(PATH_FONT),
-                font_size: TEXT_FONT_SIZE,
+                font_size: TEXT_SIZE,
                 color: TEXT_COLOR,
             }
         )
@@ -71,14 +71,14 @@ fn setup(
     ))
     .insert(Name::new("timer"));
     // retry
-    let top = WINDOW_SIZE.y / 2.0 - TEXT_FONT_SIZE / 2.0 + TEXT_PADDING * 0.5;
+    let top = WINDOW_SIZE.y / 2.0 - TEXT_SIZE / 2.0 + TEXT_PADDING * 0.5;
 
     commands.spawn((
         TextBundle::from_section(
             RETRY_TEXT, 
             TextStyle {
                 font: asset_server.load(PATH_FONT),
-                font_size: TEXT_FONT_SIZE,
+                font_size: TEXT_SIZE,
                 color: TEXT_COLOR,
             }
         )
@@ -92,14 +92,14 @@ fn setup(
     ))
     .insert(Name::new("retry"));
     // back to title
-    let top = WINDOW_SIZE.y / 2.0 - TEXT_FONT_SIZE / 2.0 + TEXT_PADDING * 1.5;
+    let top = WINDOW_SIZE.y / 2.0 - TEXT_SIZE / 2.0 + TEXT_PADDING * 1.5;
 
     commands.spawn((
         TextBundle::from_section(
             BACKTOTITLE_TEXT, 
             TextStyle {
                 font: asset_server.load(PATH_FONT),
-                font_size: TEXT_FONT_SIZE,
+                font_size: TEXT_SIZE,
                 color: TEXT_COLOR,
             }
         )
@@ -115,12 +115,11 @@ fn setup(
 }
 
 fn update(
-    keyboard_input: Res<ButtonInput<KeyCode>>,
     mut config: ResMut<Config>,
     mut next_state: ResMut<NextState<AppState>>,
+    keyboard_input: Res<ButtonInput<KeyCode>>,
 ) {
-    let mut closure = |key: &KeyCode, app_state: AppState| {
-        println!("gameclear: {:?} just pressed", key);
+    let mut closure = |app_state: AppState| {
         println!("gameclear: config setup ingame is true");
         config.setup_ingame = true;
         println!("gameclear: moved state to {:?} from Gameclear", app_state);
@@ -129,8 +128,8 @@ fn update(
 
     for key in keyboard_input.get_just_pressed() {
         match key {
-            KeyCode::KeyR => closure(key, AppState::Ingame),
-            KeyCode::KeyB => closure(key, AppState::Mainmenu),
+            KeyCode::KeyR => closure(AppState::Ingame),
+            KeyCode::KeyB => closure(AppState::Mainmenu),
             _ => {},
         }
     }
