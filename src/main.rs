@@ -12,9 +12,9 @@ const CURSOR_RANGE: f32 = 10.0;
 const BALL_COUNT: usize = 20;
 const GAMETIME_LIMIT: f32 = 25.0;
 const PATH_FONT: &str = "fonts/misaki_gothic.ttf";
-const PATH_IMAGE_MAINMENU: &str = "images/mainmenu.png";
-const PATH_IMAGE_PAUSEBUTTON: &str = "images/pausebutton.png";
-const PATH_SOUND_BGM: &str = "sounds/bgm.ogg";
+const PATH_IMAGE_MAINMENU: &str = "bevy-click-game/mainmenu.png";
+const PATH_IMAGE_PAUSEBUTTON: &str = "images/pausebutton-dark.png";
+const PATH_SOUND_BGM: &str = "bevy-click-game/bgm.ogg";
 const PATH_SOUND_CLICK: &str = "sounds/click.ogg";
 const PATH_SOUND_DESPAWN: &str = "sounds/despawn.ogg";
 

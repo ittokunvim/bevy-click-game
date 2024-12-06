@@ -45,7 +45,7 @@ fn setup(
             position_type: PositionType::Relative,
             justify_self: JustifySelf::Center,
             top,
-            ..default()
+            ..Default::default()
         }),
         Mainmenu,
     ))
@@ -66,7 +66,7 @@ fn setup(
             position_type: PositionType::Relative,
             justify_self: JustifySelf::Center,
             top,
-            ..default()
+            ..Default::default()
         }),
         Mainmenu,
     ))
@@ -76,7 +76,7 @@ fn setup(
         MaterialMesh2dBundle {
             mesh: Mesh2dHandle(meshes.add(Rectangle::new(BOARD_SIZE.x, BOARD_SIZE.y))),
             material: materials.add(BOARD_COLOR),
-            ..default()
+            ..Default::default()
         },
         Mainmenu,
     ))
@@ -86,7 +86,7 @@ fn setup(
         SpriteBundle {
             texture: asset_server.load(PATH_IMAGE_MAINMENU),
             transform: Transform::from_xyz(0.0, 0.0, -10.0),
-            ..default()
+            ..Default::default()
         },
         Mainmenu,
     ))
@@ -96,10 +96,10 @@ fn setup(
 fn update(
     mut commands: Commands,
     mut next_state: ResMut<NextState<AppState>>,
-    mouse_event: Res<ButtonInput<MouseButton>>,
+    mouse_events: Res<ButtonInput<MouseButton>>,
     query: Query<Entity, With<Mainmenu>>,
 ) {
-    if !mouse_event.just_pressed(MouseButton::Left) { return }
+    if !mouse_events.just_pressed(MouseButton::Left) { return }
 
     println!("mainmenu: despawn");
     for entity in query.iter() { commands.entity(entity).despawn() }
