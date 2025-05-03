@@ -8,16 +8,16 @@ mod ingame;
 mod gameover;
 mod gameclear;
 
-const GAMETITLE: &str = "クリックゲーム";
+const GAMETITLE: &str = "いっとくクリックゲーム";
 const WINDOW_SIZE: Vec2 = Vec2::new(640.0, 480.0);
 const BACKGROUND_COLOR: Color = Color::srgb(0.1, 0.1, 0.1);
 const CURSOR_RANGE: f32 = 10.0;
 const BALL_COUNT: usize = 20;
 const GAMETIME_LIMIT: f32 = 25.0;
 const PATH_FONT: &str = "fonts/misaki_gothic.ttf";
-const PATH_IMAGE_MAINMENU: &str = "bevy-click-game/mainmenu.png";
+const PATH_IMAGE_MAINMENU: &str = "ittoku-click-game/mainmenu.png";
 const PATH_IMAGE_PAUSEBUTTON: &str = "images/pausebutton-dark.png";
-const PATH_SOUND_BGM: &str = "bevy-click-game/bgm.ogg";
+const PATH_SOUND_BGM: &str = "ittoku-click-game/bgm.ogg";
 const PATH_SOUND_CLICK: &str = "sounds/click.ogg";
 const PATH_SOUND_DESPAWN: &str = "sounds/despawn.ogg";
 
