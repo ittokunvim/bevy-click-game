@@ -1,4 +1,7 @@
-use bevy::prelude::*;
+use bevy::{
+    prelude::*,
+    asset::AssetMetaCheck,
+};
 
 mod mainmenu;
 mod ingame;
@@ -53,6 +56,10 @@ fn main() {
                 }),
                 ..Default::default()
             })
+            .set(AssetPlugin {
+                meta_check: AssetMetaCheck::Never,
+                ..Default::default()
+            })
         )
         .init_state::<AppState>()
         .insert_resource(ClearColor(BACKGROUND_COLOR))
@@ -95,10 +102,10 @@ fn setup(
 
 fn update(
     mut commands: Commands,
-    mouse_event: Res<ButtonInput<MouseButton>>,
+    mouse_events: Res<ButtonInput<MouseButton>>,
     sound: Res<ClickSound>,
 ) {
-    if !mouse_event.just_pressed(MouseButton::Left) { return }
+    if !mouse_events.just_pressed(MouseButton::Left) { return }
     // play click sound
     commands.spawn(AudioBundle {
         source: sound.clone(),
