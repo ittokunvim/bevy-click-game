@@ -23,9 +23,19 @@
 - ゲームを始める、ボールを消す: 左クリック
 - 画面を遷移する: キーボード
 
-## Wasm変換
+## Wasmに変換する
 
-`./wasm.sh`を実行することでゲームを`Web Assembly`に変換することができます。
+ゲームをWasmに変換する場合は、以下のコマンドを実行します。
+
+```sh
+# ビルド
+cargo build --release --target wasm32-unknown-unknown
+# 変換
+wasm-bindgen --target web --out-dir ./examples --no-typescript \
+target/wasm32-unknown-unknown/release/ittoku_click_game.wasm
+# 実行
+npx http-server examples
+```
 
 ## クレジット
 
